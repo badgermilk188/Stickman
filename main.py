@@ -61,6 +61,8 @@ playerSadness = 0
 #Scene boundries -----------------Lists of Tuples----------(X1,Y1,X2,Y2) (left to right , top to bottom)
 scene_1_boundry = [(0,431,589,700),(802,485,1530,700)]   
 scene_2_boundry = [(0,507,386,700),(540,0,1088,306),(542,499,1089,700),(1269,424,1990,700),(2300,419,2600,700),(2547,0,2600,700)]
+scene_3_boundry = [(0,0,83,545),(0,548,2400,548),(584,0,1718,380)]
+
 #Display functions-----------------------------------------------------
 def background(s):
 	screen.blit(s,(backgroundX,0))
@@ -75,16 +77,16 @@ def boundry(scene_Boundry):
 
 	for line in scene_Boundry:
 		X1,Y1,X2,Y2 = line[0]-32,line[1]-64,line[2]-32,line[3]-64
-		print (playerCameraX,X2,X1)		
+			
 
 
-		if playerCameraX > X1 and playerCameraX < X2 and playerY >Y1 and playerY < Y1+10: #standing on things
+		if playerCameraX > X1 and playerCameraX < X2 and playerY >Y1 and playerY < Y1+15: #standing on things
 			
 			playerY = Y1
 			playerJumpState = 'Standing'
 			playerFallingState = 'Standing'
 			playerYvel = 0
-		elif playerCameraX > X1 and playerCameraX < X2 and playerY>Y2 and playerY < Y2 -10: #bumping head on things
+		elif playerCameraX > X1 and playerCameraX < X2 and playerY<Y2 and playerY > Y2 -10: #bumping head on things
 			playerY = Y2
 			playerYvel = 0
 		if playerY > Y1 and playerY < Y2 and playerCameraX <X2 and playerCameraX > X1 and playerXvel < 0: #left
@@ -97,8 +99,6 @@ def boundry(scene_Boundry):
 		playerYvel = -10
 	if playerY > 620:
 		death()
-
-
 
 def blitPlayer():
 	#player logic
@@ -158,12 +158,12 @@ def set():
 def win(condition,amount,condition2 = 'none',amount2 = 600): #condition is either X or Y
 	global playerCameraX,playerY, scene
 
-	if condition is 'X' and condition is 'none':
+	if condition is 'X' and condition2 is 'none':
 		if playerCameraX > amount:
 			scene += 1
 			set()
 
-	elif condition is 'Y' and condition is 'none':
+	elif condition is 'Y' and condition2 is 'none':
 		if playerY > amount:
 			scene += 1
 			set()
@@ -188,6 +188,13 @@ def scene_2():
 	background(sky_bg_2)
 	blitPlayer()
 	cameraScroll(2600)
+	win('X',1990,'Y',600)
+
+def scene_3():
+	boundry(scene_3_boundry)
+	background(black_bg_1)
+	blitPlayer() 
+	cameraScroll(2400)
 #mainloop --  -----------------------------------------------------------
 while running:
 
@@ -195,17 +202,17 @@ while running:
 		if event.type == pygame.QUIT:
 			running = False
 		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_LEFT:
+			if event.key == pygame.K_LEFT or event.key == pygame.K_a:
 				playerFace = 'Left'
 				playerXvel -= playerSpeed
-			if event.key == pygame.K_RIGHT:	
+			if event.key == pygame.K_RIGHT or event.key == pygame.K_d:	
 				playerFace = 'Right'
 				playerXvel += playerSpeed
-			if playerJumpState is 'Standing' and event.key == pygame.K_UP:
+			if playerJumpState is 'Standing' and event.key == pygame.K_UP or playerJumpState is 'Standing' and event.key == pygame.K_w :
 				playerJumpState = 'Jumping'
 				playerYvel = playerJumpHeight
 		if event.type == pygame.KEYUP:
-			if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+			if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT or event.key == pygame.K_a or event.key == pygame.K_d:
 				playerXvel = 0
 
 
@@ -231,10 +238,11 @@ while running:
 		playerFallingState = 'Falling'
 
 	playerY -= int(playerYvel)
-
-	if scene == 2:
-		scene_2()
-	elif scene == 1:
+	if scene == 1:
 		scene_1()
+	elif scene == 2:
+		scene_2()
+	elif scene == 3:
+		scene_3()
 
 	pygame.display.update()

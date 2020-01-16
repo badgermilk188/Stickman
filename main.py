@@ -29,6 +29,7 @@ cloud_3 = pygame.image.load("sprites/cloud2.png")
 
 sky_bg_1 = pygame.image.load("backgrounds/sky-background-1.png")
 sky_bg_2 = pygame.image.load("backgrounds/sky-background-2.png")
+black_bg_1 = pygame.image.load("backgrounds/background-black-1.png")
 #pygame displays 
 screen = pygame.display.set_mode((800,600))
 #icon
@@ -59,7 +60,7 @@ playerSadness = 0
 
 #Scene boundries -----------------Lists of Tuples----------(X1,Y1,X2,Y2) (left to right , top to bottom)
 scene_1_boundry = [(0,431,589,700),(802,485,1530,700)]   
-scene_2_boundry = []
+scene_2_boundry = [(0,507,386,700),(540,0,1088,306),(542,499,1089,700),(1269,424,1990,700),(2300,419,2600,700),(2547,0,2600,700)]
 #Display functions-----------------------------------------------------
 def background(s):
 	screen.blit(s,(backgroundX,0))
@@ -74,51 +75,28 @@ def boundry(scene_Boundry):
 
 	for line in scene_Boundry:
 		X1,Y1,X2,Y2 = line[0]-32,line[1]-64,line[2]-32,line[3]-64
+		print (playerCameraX,X2,X1)		
 
-		'''
-		if playerY > Y1 and playerY < Y2 and playerCameraX < X2 and playerCameraX >(((X2-X1)/2)+X1):#hitting right wall
-			playerCameraX = X2
-			playerXvel = 0
-		'''
-		
-		
-		if playerCameraX > X1 and playerCameraX < X2 and playerY >Y1 and playerY < Y2: #standing on things
+
+		if playerCameraX > X1 and playerCameraX < X2 and playerY >Y1 and playerY < Y1+10: #standing on things
+			
 			playerY = Y1
 			playerJumpState = 'Standing'
 			playerFallingState = 'Standing'
 			playerYvel = 0
-			print(playerCameraX)
-
+		elif playerCameraX > X1 and playerCameraX < X2 and playerY>Y2 and playerY < Y2 -10: #bumping head on things
+			playerY = Y2
+			playerYvel = 0
+		if playerY > Y1 and playerY < Y2 and playerCameraX <X2 and playerCameraX > X1 and playerXvel < 0: #left
+			playerXvel = 0
+		elif playerY > Y1 and playerY < Y2 and playerCameraX <X2 and playerCameraX > X1 and playerXvel > 0: #right
+			playerXvel = 0
+			
 
 	if playerYvel < -10:
 		playerYvel = -10
 	if playerY > 620:
 		death()
-"""
-			if playerCameraX < X1+4 and playerCameraX > X1-4 and playerY > Y1 and playerY < Y2 and playerXvel < 0:
-				#Going left
-				playerCameraX = X1+4
-				playerXvel = 0
-
-			elif playerCameraX < X1+64+4 and playerCameraX > X1+64-4 and playerY > Y1 and playerY < Y2 and playerXvel > 0:
-				#going Right
-				playerCameraX= X1-4
-				playerXvel = 0
-
-		else:
-			X1 -= 32
-			X2 -= 32		
-			if playerCameraX >= X1 and playerCameraX <= X2 and playerY >= Y1:
-				playerY = Y1
-				playerJumpState = 'Standing'
-				playerFallingState = 'Standing'
-				playerYvel = 0
-			elif playerJumpState is 'Jumping':
-				playerFallingState = 'Falling'
-			elif playerYvel > -10:
-				playerYvel -= playerGravity
-"""
-
 
 
 
@@ -223,7 +201,7 @@ while running:
 			if event.key == pygame.K_RIGHT:	
 				playerFace = 'Right'
 				playerXvel += playerSpeed
-			if playerJumpState is 'Standing' and playerFallingState is 'Standing'and event.key == pygame.K_UP:
+			if playerJumpState is 'Standing' and event.key == pygame.K_UP:
 				playerJumpState = 'Jumping'
 				playerYvel = playerJumpHeight
 		if event.type == pygame.KEYUP:
@@ -245,6 +223,8 @@ while running:
 
 	if playerFallingState is 'Falling':
 		playerYvel -= playerGravity
+	elif playerFallingState is 'Standing':
+		playerFallingState = 'Falling'
 
 
 	if playerJumpState is 'Falling':

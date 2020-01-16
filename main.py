@@ -58,8 +58,8 @@ playerSadness = 0
 
 
 #Scene boundries -----------------Lists of Tuples----------(X1,Y1,X2,Y2) (left to right , top to bottom)
-scene_1_boundry = [(0,430,588,430),(790,482,1600,482),(750,482,750,700),(580,444,580,700)]   
-scene_2_boundry = [(0,507,386,507),(355,508,355,700),(541,500,541,700),(542,499,1089,499),(1090,500,1090,700)]
+scene_1_boundry = [(0,431,589,700),(802,485,1530,700)]   
+scene_2_boundry = []
 #Display functions-----------------------------------------------------
 def background(s):
 	screen.blit(s,(backgroundX,0))
@@ -73,10 +73,28 @@ def boundry(scene_Boundry):
 
 
 	for line in scene_Boundry:
-		X1,Y1,X2,Y2 = line[0],line[1]-64,line[2],line[3]-64
-		if X1-X2 == 0:
+		X1,Y1,X2,Y2 = line[0]-32,line[1]-64,line[2]-32,line[3]-64
+
+		'''
+		if playerY > Y1 and playerY < Y2 and playerCameraX < X2 and playerCameraX >(((X2-X1)/2)+X1):#hitting right wall
+			playerCameraX = X2
+			playerXvel = 0
+		'''
+		
+		
+		if playerCameraX > X1 and playerCameraX < X2 and playerY >Y1 and playerY < Y2: #standing on things
+			playerY = Y1
+			playerJumpState = 'Standing'
+			playerFallingState = 'Standing'
+			playerYvel = 0
+			print(playerCameraX)
 
 
+	if playerYvel < -10:
+		playerYvel = -10
+	if playerY > 620:
+		death()
+"""
 			if playerCameraX < X1+4 and playerCameraX > X1-4 and playerY > Y1 and playerY < Y2 and playerXvel < 0:
 				#Going left
 				playerCameraX = X1+4
@@ -99,12 +117,9 @@ def boundry(scene_Boundry):
 				playerFallingState = 'Falling'
 			elif playerYvel > -10:
 				playerYvel -= playerGravity
+"""
 
 
-		if playerYvel < -10:
-			playerYvel = -10
-		if playerY > 820:
-			death()
 
 
 def blitPlayer():
@@ -187,7 +202,7 @@ def scene_1():
 	background(sky_bg_1)
 	blitPlayer()
 	cameraScroll(1500)
-	win('X',1520)
+	win('X',1500)
 
 
 def scene_2():

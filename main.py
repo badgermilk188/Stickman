@@ -61,7 +61,7 @@ playerSadness = 0
 #Scene boundries -----------------Lists of Tuples----------(X1,Y1,X2,Y2) (left to right , top to bottom)
 scene_1_boundry = [(0,431,589,700),(802,485,1530,700)]   
 scene_2_boundry = [(0,507,386,700),(540,0,1088,306),(542,499,1089,700),(1269,424,1990,700),(2300,419,2600,700),(2547,0,2600,700)]
-scene_3_boundry = [(0,0,83,545),(0,548,2400,548),(584,0,1718,380)]
+scene_3_boundry = [(0,0,83,600),(0,548,2500,548),(584,0,1718,380)]
 
 #Display functions-----------------------------------------------------
 def background(s):
@@ -86,13 +86,14 @@ def boundry(scene_Boundry):
 			playerJumpState = 'Standing'
 			playerFallingState = 'Standing'
 			playerYvel = 0
-		elif playerCameraX > X1 and playerCameraX < X2 and playerY<Y2 and playerY > Y2 -10: #bumping head on things
-			playerY = Y2
-			playerYvel = 0
+		#elif playerCameraX > X1 and playerCameraX < X2 and playerY<Y2 and playerY > Y2 -10: #bumping head on things
+		#	playerY = Y2
+		#	playerYvel = 0
 		if playerY > Y1 and playerY < Y2 and playerCameraX <X2 and playerCameraX > X1 and playerXvel < 0: #left
-			playerXvel = 0
+			playerXvel = -playerXvel
+
 		elif playerY > Y1 and playerY < Y2 and playerCameraX <X2 and playerCameraX > X1 and playerXvel > 0: #right
-			playerXvel = 0
+			playerXvel = -playerXvel
 			
 
 	if playerYvel < -10:

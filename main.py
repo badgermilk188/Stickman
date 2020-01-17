@@ -25,10 +25,11 @@ playerColorRight = pygame.image.load("sprites/playercolor-rightface.png")
 #hands
 hand_color = pygame.image.load('sprites/hand-color.png')
 hand_black = pygame.image.load('sprites/hand-black.png')
+gun_color_right = pygame.image.load('sprites/gun-color-right.png')
+gun_color_left = pygame.image.load('sprites/gun-color-left.png')
 #inventory
 item = 'Fist'
-itemList = ['Fist']
-itemCycleCount = 0
+itemList = ['Fist','Gun']
 currentItem = 0
 #backgrounds
 cloud_1 = pygame.image.load("sprites/cloud1.png")
@@ -123,19 +124,32 @@ def blitPlayer():
 	#player logic and hand X logic
 	if playerFace is 'Right' and playerState is 'Happy':
 		player = playerColorRight
-		hand = hand_color
+		if item is 'Fist':
+			hand = hand_color
+		elif item is 'Gun':
+			hand = gun_color_right
 		playerHandPosition_X = playerX + 36
 	elif playerFace is 'Right' and playerState is 'Sad':
 		player = playerBlackRight
-		hand = hand_black
+		if item is 'Fist':
+			hand = hand_black
+		elif item is 'Gun':
+			hand = gun_color_right
+		
 		playerHandPosition_X = playerX + 36
 	elif playerFace is 'Left' and playerState is 'Happy':
 		player = playerColorLeft
-		hand = hand_color
+		if item is 'Fist':
+			hand = hand_color
+		elif item is 'Gun':
+			hand = gun_color_left
 		playerHandPosition_X = playerX + 8
 	else:
 		player = playerBlackLeft
-		hand = hand_black
+		if item is 'Fist':
+			hand = hand_black
+		elif item is 'Gun':
+			hand = gun_color_left
 		playerHandPosition_X = playerX + 8
 
 	#hand Y logic
@@ -150,23 +164,24 @@ def blitPlayer():
 	else:
 		handY = 26
 	# punch logic
-	if playerPunchStage > 0 and playerPunchStage <= 8:
-		if playerFace is 'Left':
-			playerHandPosition_X -= playerPunchStage*2
-			playerPunchStage +=1
-		if playerFace is 'Right':
-			playerHandPosition_X += playerPunchStage*2
-			playerPunchStage +=1
-	if playerPunchStage > 8:
-		if playerFace is 'Left':
-			playerHandPosition_X += playerPunchStage
-			playerPunchStage +=1
-		if playerFace is 'Right':
-			playerHandPosition_X -= playerPunchStage
-			playerPunchStage +=1
+	if item is 'Fist':
+		if playerPunchStage > 0 and playerPunchStage <= 8:
+			if playerFace is 'Left':
+				playerHandPosition_X -= playerPunchStage*2
+				playerPunchStage +=1
+			if playerFace is 'Right':
+				playerHandPosition_X += playerPunchStage*2
+				playerPunchStage +=1
+		if playerPunchStage > 8:
+			if playerFace is 'Left':
+				playerHandPosition_X += playerPunchStage
+				playerPunchStage +=1
+			if playerFace is 'Right':
+				playerHandPosition_X -= playerPunchStage
+				playerPunchStage +=1
 
-		if playerPunchStage == 10:
-			playerPunchStage = 0
+			if playerPunchStage == 10:
+				playerPunchStage = 0
 
 	playerHandPosition_Y = playerY+handY
 
@@ -275,6 +290,12 @@ while running:
 				playerYvel = playerJumpHeight
 			if playerPunchStage == 0 and event.key== pygame.K_SPACE and item =='Fist':
 				playerPunchStage = 1
+			if event.key == pygame.K_q:
+				if currentItem < len(itemList)-1:
+					currentItem += 1
+				else:
+					currentItem = 0
+				item = itemList[currentItem]
 		if event.type == pygame.KEYUP:
 			if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT or event.key == pygame.K_a or event.key == pygame.K_d:
 				playerXvel = 0

@@ -27,6 +27,12 @@ hand_color = pygame.image.load('sprites/hand-color.png')
 hand_black = pygame.image.load('sprites/hand-black.png')
 gun_color_right = pygame.image.load('sprites/gun-color-right.png')
 gun_color_left = pygame.image.load('sprites/gun-color-left.png')
+casing_1 =pygame.image.load('sprites/casing-stage-1.png')
+casing_2 =pygame.image.load('sprites/casing-stage-2.png')
+casing_3 =pygame.image.load('sprites/casing-stage-3.png')
+casing_4 =pygame.image.load('sprites/casing-stage-4.png')
+casing = casing_1
+
 #inventory
 item = 'Fist'
 itemList = ['Fist','Gun']
@@ -75,6 +81,10 @@ playerHandPosition_Y = 0
 playerPunchStage = 0 # 0 - 16 depending on where it is.
 handY = 30
 
+#Gun 
+GunCasingStage = 0 #0 - 4 depending
+casingX = 0
+casingY = 0
 
 #Scene boundries -----------------Lists of Tuples----------(X1,Y1,X2,Y2) (left to right , top to bottom)
 scene_1_boundry = [(0,431,589,700),(802,485,1530,700)]   
@@ -120,7 +130,7 @@ def boundry(scene_Boundry):
 		death()
 
 def blitPlayer():
-	global playerHandPosition_X, playerHandPosition_Y,handY, playerPunchStage
+	global playerHandPosition_X, playerHandPosition_Y,handY, playerPunchStage, casingY,casingX,GunCasingStage, casing
 	#player logic and hand X logic
 	if playerFace is 'Right' and playerState is 'Happy':
 		player = playerColorRight
@@ -184,9 +194,41 @@ def blitPlayer():
 				playerPunchStage = 0
 
 	playerHandPosition_Y = playerY+handY
+	#gun logic
+	if item is 'Gun':
+		casingX = playerHandPosition_X + 10
+		casingY = playerHandPosition_Y
+		if GunCasingStage  >0 and GunCasingStage <= 4:
+			casing = casing_1
+			GunCasingStage += 1
+
+		elif GunCasingStage > 4 and GunCasingStage <=8:
+			casing = casing_2
+			GunCasingStage += 1
+		elif GunCasingStage >8 and GunCasingStage <= 12:
+			casing = casing_3
+			GunCasingStage += 1
+		elif GunCasingStage > 12 and GunCasingStage<=16:
+			casing = casing_4
+			GunCasingStage += 1
+		
+		if GunCasingStage > 16:
+			GunCasingStage = 0
+		if GunCasingStage > 10:
+			casingY += GunCasingStage*2
+		elif GunCasingStage < 8:
+			casingY -= GunCasingStage*2
+		else:
+			casingY += GunCasingStage
+		if playerFace is 'Right':
+			casingX += GunCasingStage
+		else:
+			casingX -= GunCasingStage
 
 	screen.blit(player,(playerX,playerY))
 	screen.blit(hand,(playerHandPosition_X,playerHandPosition_Y))
+	if GunCasingStage>0 and item is 'Gun':
+		screen.blit(casing,(casingX,casingY))
 def cameraScroll(xmax,xmin = 0):
 	global playerX, playerCameraX, playerXvel, playerSpeed, backgroundX
 
@@ -288,8 +330,11 @@ while running:
 			if playerJumpState is 'Standing' and event.key == pygame.K_UP or playerJumpState is 'Standing' and event.key == pygame.K_w :
 				playerJumpState = 'Jumping'
 				playerYvel = playerJumpHeight
-			if playerPunchStage == 0 and event.key== pygame.K_SPACE and item =='Fist':
-				playerPunchStage = 1
+			if playerPunchStage == 0 and event.key== pygame.K_SPACE:
+				if item =='Fist':
+					playerPunchStage = 1
+				elif item is 'Gun' and GunCasingStage ==0:
+					GunCasingStage = 1 
 			if event.key == pygame.K_q:
 				if currentItem < len(itemList)-1:
 					currentItem += 1

@@ -22,7 +22,14 @@ playerBlackLeft = pygame.image.load("sprites/playerblack-leftface.png")
 playerBlackRight = pygame.image.load("sprites/playerblack-rightface.png")
 playerColorLeft = pygame.image.load("sprites/playercolor-leftface.png")
 playerColorRight = pygame.image.load("sprites/playercolor-rightface.png")
-
+#hands
+hand_color = pygame.image.load('sprites/hand-color.png')
+hand_black = pygame.image.load('sprites/hand-black.png')
+#inventory
+item = 'Fist'
+itemList = ['Fist']
+itemCycleCount = 0
+currentItem = 0
 #backgrounds
 cloud_1 = pygame.image.load("sprites/cloud1.png")
 cloud_3 = pygame.image.load("sprites/cloud2.png")
@@ -61,6 +68,12 @@ playerFallingState = 'Falling' #falling , Standing
 playerSadness = 0
 playerSadSpeed = 2
 playerStuckSad = False
+#hads for player
+playerHandPosition_X = 0
+playerHandPosition_Y = 0
+playerPunchStage = 0 # 0 - 5 depending on where it is.
+handY = 30
+
 
 #Scene boundries -----------------Lists of Tuples----------(X1,Y1,X2,Y2) (left to right , top to bottom)
 scene_1_boundry = [(0,431,589,700),(802,485,1530,700)]   
@@ -106,16 +119,42 @@ def boundry(scene_Boundry):
 		death()
 
 def blitPlayer():
-	#player logic
+	global playerHandPosition_X, playerHandPosition_Y,handY
+	#player logic and hand X logic
 	if playerFace is 'Right' and playerState is 'Happy':
 		player = playerColorRight
+		hand = hand_color
+		playerHandPosition_X = playerX + 36
 	elif playerFace is 'Right' and playerState is 'Sad':
 		player = playerBlackRight
+		hand = hand_black
+		playerHandPosition_X = playerX + 36
 	elif playerFace is 'Left' and playerState is 'Happy':
 		player = playerColorLeft
+		hand = hand_color
+		playerHandPosition_X = playerX + 8
 	else:
 		player = playerBlackLeft
+		hand = hand_black
+		playerHandPosition_X = playerX + 8
+
+	#hand Y logic
+	
+	if playerYvel > 0:
+		if handY >23:
+			handY -= 1
+	elif playerYvel < playerGravity:
+		if handY <33:
+			handY += .5
+
+	else:
+		handY = 28
+	print(playerHandPosition_Y)
+
+	playerHandPosition_Y = playerY+handY
+
 	screen.blit(player,(playerX,playerY))
+	screen.blit(hand,(playerHandPosition_X,playerHandPosition_Y))
 def cameraScroll(xmax,xmin = 0):
 	global playerX, playerCameraX, playerXvel, playerSpeed, backgroundX
 
@@ -158,12 +197,10 @@ def set(pX = 100,pY = 100,pss = False):
 	playerFallingState = 'Falling' #falling , Standing
 	playerSadness = 0
 	playerStuckSad = pss
-
 def wallCollision():
 	global collision, playerXvel
 	collision = True
 	playerXvel = -playerXvel
-
 def win(condition,amount,condition2 = 'none',amount2 = 600): #condition is either X or Y
 	global playerCameraX,playerY, scene
 
@@ -190,7 +227,6 @@ def scene_1():
 	blitPlayer()
 	cameraScroll(1500)
 	win('X',1500)
-
 
 def scene_2():
 	boundry(scene_2_boundry)

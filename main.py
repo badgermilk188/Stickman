@@ -35,9 +35,12 @@ screen = pygame.display.set_mode((800,600))
 #icon
 pygame.display.set_icon(icon)
 
+#clock
+clock = pygame.time.Clock()
+
 #all variables -----------------------------------------------
 
-
+collision = False
 backgroundX = 0
 playerCameraX = 100
 
@@ -56,12 +59,13 @@ playerState = 'Happy'  #Happy or Sad (depressed)
 playerJumpState = 'Falling' #Standing, Jumping
 playerFallingState = 'Falling' #falling , Standing
 playerSadness = 0
-
+playerSadSpeed = 2
+playerStuckSad = False
 
 #Scene boundries -----------------Lists of Tuples----------(X1,Y1,X2,Y2) (left to right , top to bottom)
 scene_1_boundry = [(0,431,589,700),(802,485,1530,700)]   
 scene_2_boundry = [(0,507,386,700),(540,0,1088,306),(542,499,1089,700),(1269,424,1990,700),(2300,419,2600,700),(2547,0,2600,700)]
-scene_3_boundry = [(0,0,83,600),(0,548,2500,548),(584,0,1718,380)]
+scene_3_boundry = [(0,0,51,600),(0,548,2500,548),(584,0,1718,380)]
 
 #Display functions-----------------------------------------------------
 def background(s):
@@ -90,10 +94,10 @@ def boundry(scene_Boundry):
 		#	playerY = Y2
 		#	playerYvel = 0
 		if playerY > Y1 and playerY < Y2 and playerCameraX <X2 and playerCameraX > X1 and playerXvel < 0: #left
-			playerXvel = -playerXvel
+			wallCollision()
 
 		elif playerY > Y1 and playerY < Y2 and playerCameraX <X2 and playerCameraX > X1 and playerXvel > 0: #right
-			playerXvel = -playerXvel
+			wallCollision()
 			
 
 	if playerYvel < -10:
@@ -137,24 +141,28 @@ def death():
 	playerY = 0
 	playerState = 'Happy'
 	playerSadness = 0
-def set():
-	global playerX,playerY, playerSpeed,playerXvel,playerYvel
-	global playerGravity,playerJumpHeight,playerFace,playerState
+def set(pX = 100,pY = 100,pss = False):
+	global playerX,playerY, playerXvel,playerYvel
+	global playerFace,playerState,playerStuckSad
 	global playerFallingState,playerSadness, backgroundX, playerCameraX
 	backgroundX = 0
 	playerCameraX = 100
-	playerX = 100
-	playerY = 50
+	playerX = pX
+	playerY = pY
 	playerSpeed = 4
 	playerXvel = 0
 	playerYvel = 0
-	playerGravity = .15
-	playerJumpHeight = 8
 	playerFace = 'Right' 	# Right or Left
 	playerState = 'Happy'  #Happy or Sad (depressed)
 	playerJumpState = 'Falling' #Standing, Jumping
 	playerFallingState = 'Falling' #falling , Standing
 	playerSadness = 0
+	playerStuckSad = pss
+
+def wallCollision():
+	global collision, playerXvel
+	collision = True
+	playerXvel = -playerXvel
 
 def win(condition,amount,condition2 = 'none',amount2 = 600): #condition is either X or Y
 	global playerCameraX,playerY, scene
@@ -167,11 +175,11 @@ def win(condition,amount,condition2 = 'none',amount2 = 600): #condition is eithe
 	elif condition is 'Y' and condition2 is 'none':
 		if playerY > amount:
 			scene += 1
-			set()
+			set(5,400)
 	else:
 		if playerCameraX > amount and playerY > amount2:
 			scene += 1
-			set()
+			set(150,5,True)
 
 
 #ALL SCENES -  ------------------------------------------
@@ -222,12 +230,17 @@ while running:
 		if playerYvel >= playerJumpHeight:
 			playerYvel = 0
 			playerJumpState = 'Standing'
-
-	playerSadness += .1
-	if playerSadness > 100:
-		if playerState is 'Happy':
-			playerSpeed = playerSpeed/2
+	if playerStuckSad:
 		playerState = 'Sad'
+		playerSpeed = playerSadSpeed
+	else:
+		playerSadness += .1
+		if playerSadness > 100:
+			if playerState is 'Happy':
+				playerSpeed = playerSadSpeed
+				playerXvel = 0
+			playerState = 'Sad'
+
 
 	if playerFallingState is 'Falling':
 		playerYvel -= playerGravity
@@ -237,7 +250,9 @@ while running:
 
 	if playerJumpState is 'Falling':
 		playerFallingState = 'Falling'
-
+	if collision:
+		playerXvel = 0
+		collision = False
 	playerY -= int(playerYvel)
 	if scene == 1:
 		scene_1()
@@ -247,3 +262,4 @@ while running:
 		scene_3()
 
 	pygame.display.update()
+	clock.tick(60)

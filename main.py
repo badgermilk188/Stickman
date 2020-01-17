@@ -71,7 +71,7 @@ playerStuckSad = False
 #hads for player
 playerHandPosition_X = 0
 playerHandPosition_Y = 0
-playerPunchStage = 0 # 0 - 5 depending on where it is.
+playerPunchStage = 0 # 0 - 16 depending on where it is.
 handY = 30
 
 
@@ -119,7 +119,7 @@ def boundry(scene_Boundry):
 		death()
 
 def blitPlayer():
-	global playerHandPosition_X, playerHandPosition_Y,handY
+	global playerHandPosition_X, playerHandPosition_Y,handY, playerPunchStage
 	#player logic and hand X logic
 	if playerFace is 'Right' and playerState is 'Happy':
 		player = playerColorRight
@@ -141,15 +141,32 @@ def blitPlayer():
 	#hand Y logic
 	
 	if playerYvel > 0:
-		if handY >23:
+		if handY >21:
 			handY -= 1
 	elif playerYvel < playerGravity:
-		if handY <33:
+		if handY <31:
 			handY += .5
 
 	else:
-		handY = 28
-	print(playerHandPosition_Y)
+		handY = 26
+	# punch logic
+	if playerPunchStage > 0 and playerPunchStage <= 8:
+		if playerFace is 'Left':
+			playerHandPosition_X -= playerPunchStage*2
+			playerPunchStage +=1
+		if playerFace is 'Right':
+			playerHandPosition_X += playerPunchStage*2
+			playerPunchStage +=1
+	if playerPunchStage > 8:
+		if playerFace is 'Left':
+			playerHandPosition_X += playerPunchStage
+			playerPunchStage +=1
+		if playerFace is 'Right':
+			playerHandPosition_X -= playerPunchStage
+			playerPunchStage +=1
+
+		if playerPunchStage == 10:
+			playerPunchStage = 0
 
 	playerHandPosition_Y = playerY+handY
 
@@ -256,6 +273,8 @@ while running:
 			if playerJumpState is 'Standing' and event.key == pygame.K_UP or playerJumpState is 'Standing' and event.key == pygame.K_w :
 				playerJumpState = 'Jumping'
 				playerYvel = playerJumpHeight
+			if playerPunchStage == 0 and event.key== pygame.K_SPACE and item =='Fist':
+				playerPunchStage = 1
 		if event.type == pygame.KEYUP:
 			if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT or event.key == pygame.K_a or event.key == pygame.K_d:
 				playerXvel = 0

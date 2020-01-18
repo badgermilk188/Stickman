@@ -46,6 +46,7 @@ cloud_3 = pygame.image.load("sprites/cloud2.png")
 sky_bg_1 = pygame.image.load("backgrounds/sky-background-1.png")
 sky_bg_2 = pygame.image.load("backgrounds/sky-background-2.png")
 black_bg_1 = pygame.image.load("backgrounds/background-black-1.png")
+black_bg_2 = pygame.image.load('backgrounds/background-black-2.png')
 #pygame displays 
 screen = pygame.display.set_mode((800,600))
 #icon
@@ -97,6 +98,7 @@ enemyXvel = []
 enemyXminPositions = []
 enemyXmaxPositions = []
 enemyX = []
+enemyXchange = []
 enemySpeed = 2
 
 #Scene boundries -----------------Lists of Tuples----------(X1,Y1,X2,Y2) (left to right , top to bottom)
@@ -254,15 +256,16 @@ def cameraScroll(xmax,xmin = 0):
 		backgroundX -= playerXvel
 		playerCameraX += playerXvel
 		
-		for i in range(enemies):
-			enemyX[i] = enemyPositionX[i]+ backgroundX
+			
 
 	elif playerCameraX >= xmax-432:
 		playerCameraX += playerXvel
 		playerX += playerXvel
+		if playerX < 368:
+			playerX = 368
 		backgroundX = -xmax+800
 
-	print(playerX,backgroundX,enemyX)
+
 def death():
 	global playerY, playerState, playerSadness, playerSpeed
 
@@ -296,9 +299,10 @@ def createEnemy(x,y,paceX,paceX2):
 	enemyXvel.append(enemySpeed)
 	enemyXminPositions.append(paceX)
 	enemyXmaxPositions.append(paceX2)
+	enemyXchange.append(0)
 	enemies+= 1
 
-def enemy():
+def blitEnemy():
 	for i in range(enemies):
 		screen.blit(enemy_black,(enemyX[i],enemyPositionY[i]))	
 
@@ -331,7 +335,6 @@ def scene_1():
 	boundry(scene_1_boundry)
 	background(sky_bg_1)
 	blitPlayer()
-	enemy()
 	cameraScroll(1500)
 	win('X',1500)
 
@@ -339,7 +342,7 @@ def scene_2():
 
 	boundry(scene_2_boundry)
 	background(sky_bg_2)
-	enemy()
+	blitEnemy()
 	blitPlayer()
 	cameraScroll(2600)
 	win('X',1990,'Y',600)
@@ -349,6 +352,11 @@ def scene_3():
 	background(black_bg_1)
 	blitPlayer() 
 	cameraScroll(2400)
+	win('X',2400)
+def scene_4():
+	background(black_bg_2)
+	blitPlayer()
+	cameraScroll(1000)
 #mainloop --  -----------------------------------------------------------
 while running:
 
@@ -417,13 +425,23 @@ while running:
 		enemyXmin = enemyXminPositions[i]
 		enemyXmax = enemyXmaxPositions[i]
 		
+		enemyX[i] = enemyPositionX[i]+ backgroundX 
+		enemyX[i] += enemyXchange[i]
+		enemyXchange[i] += enemyXvel[i]
 
+		if enemyPositionX[i] + enemyXchange[i] > enemyXmax:
+			enemyXvel[i] = -enemySpeed
+		elif enemyPositionX[i] + enemyXchange[i] <enemyXmin:
+			enemyXvel[i] = enemySpeed
+		print(enemyXmin,enemyXmax,enemyPositionX[i],enemyX[i])
 	if scene == 1:
 		scene_1()
 	elif scene == 2:
 		scene_2()
 	elif scene == 3:
 		scene_3()
+	elif scene == 4:
+		scene_4()
 
 	pygame.display.update()
 	clock.tick(60)

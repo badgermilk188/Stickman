@@ -22,6 +22,8 @@ playerBlackLeft = pygame.image.load("sprites/playerblack-leftface.png")
 playerBlackRight = pygame.image.load("sprites/playerblack-rightface.png")
 playerColorLeft = pygame.image.load("sprites/playercolor-leftface.png")
 playerColorRight = pygame.image.load("sprites/playercolor-rightface.png")
+#enemy sprites
+enemy_black = pygame.image.load('sprites/enemy-black.png')
 #hands
 hand_color = pygame.image.load('sprites/hand-color.png')
 hand_black = pygame.image.load('sprites/hand-black.png')
@@ -85,6 +87,18 @@ handY = 30
 GunCasingStage = 0 #0 - 4 depending
 casingX = 0
 casingY = 0
+
+#bad guy variables
+enemies = 0
+enemyList = []
+enemyPositionX = []
+enemyPositionY = []
+enemyXvel = []
+enemyXminPositions = []
+enemyXmaxPositions = []
+enemyX = []
+enemySpeed = 2
+
 
 #Scene boundries -----------------Lists of Tuples----------(X1,Y1,X2,Y2) (left to right , top to bottom)
 scene_1_boundry = [(0,431,589,700),(802,485,1530,700)]   
@@ -241,11 +255,14 @@ def cameraScroll(xmax,xmin = 0):
 	elif playerCameraX >= xmin+368 and playerCameraX <= xmax-432:
 		backgroundX -= playerXvel
 		playerCameraX += playerXvel
+		for i in range(enemies):
+			enemyPositionX[i] -= playerXvel
 
 	elif playerCameraX > xmax-432:
 		playerCameraX += playerXvel
 		playerX += playerXvel
 		backgroundX = -xmax+800
+	print(playerX,backgroundX,enemyX)
 def death():
 	global playerY, playerState, playerSadness, playerSpeed
 
@@ -271,6 +288,20 @@ def set(pX = 100,pY = 100,pss = False):
 	playerFallingState = 'Falling' #falling , Standing
 	playerSadness = 0
 	playerStuckSad = pss
+def createEnemy(x,y,paceX,paceX2):
+	global enemies
+	enemyPositionX.append(x)
+	enemyX.append(x)
+	enemyPositionY.append(y)
+	enemyXvel.append(enemySpeed)
+	enemyXminPositions.append(paceX)
+	enemyXmaxPositions.append(paceX2)
+	enemies+= 1
+
+def enemy():
+	for i in range(enemies):
+		screen.blit(enemy_black,(enemyX[i],enemyPositionY[i]))	
+
 def wallCollision():
 	global collision, playerXvel
 	collision = True
@@ -282,6 +313,7 @@ def win(condition,amount,condition2 = 'none',amount2 = 600): #condition is eithe
 		if playerCameraX > amount:
 			scene += 1
 			set()
+			createEnemy(250,450,225,275)
 
 	elif condition is 'Y' and condition2 is 'none':
 		if playerY > amount:
@@ -299,16 +331,19 @@ def scene_1():
 	boundry(scene_1_boundry)
 	background(sky_bg_1)
 	blitPlayer()
+	enemy()
 	cameraScroll(1500)
 	win('X',1500)
 
 def scene_2():
+
 	boundry(scene_2_boundry)
 	background(sky_bg_2)
+	enemy()
 	blitPlayer()
 	cameraScroll(2600)
 	win('X',1990,'Y',600)
-
+	
 def scene_3():
 	boundry(scene_3_boundry)
 	background(black_bg_1)
@@ -375,6 +410,14 @@ while running:
 		playerXvel = 0
 		collision = False
 	playerY -= int(playerYvel)
+
+	# enemy logic
+	for i in range(enemies):
+
+		enemyXmin = enemyXminPositions[i]
+		enemyXmax = enemyXmaxPositions[i]
+		
+
 	if scene == 1:
 		scene_1()
 	elif scene == 2:
@@ -384,3 +427,37 @@ while running:
 
 	pygame.display.update()
 	clock.tick(60)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	

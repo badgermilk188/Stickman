@@ -99,7 +99,6 @@ enemyXmaxPositions = []
 enemyX = []
 enemySpeed = 2
 
-
 #Scene boundries -----------------Lists of Tuples----------(X1,Y1,X2,Y2) (left to right , top to bottom)
 scene_1_boundry = [(0,431,589,700),(802,485,1530,700)]   
 scene_2_boundry = [(0,507,386,700),(540,0,1088,306),(542,499,1089,700),(1269,424,1990,700),(2300,419,2600,700),(2547,0,2600,700)]
@@ -120,8 +119,6 @@ def boundry(scene_Boundry):
 	for line in scene_Boundry:
 		X1,Y1,X2,Y2 = line[0]-32,line[1]-64,line[2]-32,line[3]-64
 			
-
-
 		if playerCameraX > X1 and playerCameraX < X2 and playerY >Y1 and playerY < Y1+15: #standing on things
 			
 			playerY = Y1
@@ -229,9 +226,9 @@ def blitPlayer():
 		if GunCasingStage > 16:
 			GunCasingStage = 0
 		if GunCasingStage > 10:
-			casingY += GunCasingStage*2
+			casingY += GunCasingStage*1.5
 		elif GunCasingStage < 8:
-			casingY -= GunCasingStage*2
+			casingY -= GunCasingStage*1.5
 		else:
 			casingY += GunCasingStage
 		if playerFace is 'Right':
@@ -247,21 +244,24 @@ def cameraScroll(xmax,xmin = 0):
 	global playerX, playerCameraX, playerXvel, playerSpeed, backgroundX
 
 		
-	if playerCameraX < xmin+368:
+	if playerCameraX <= xmin+368:
 		playerX += playerXvel
+		if playerX > 368:
+			playerX = 368
 		playerCameraX += playerXvel
 		backgroundX = xmin
-
-	elif playerCameraX >= xmin+368 and playerCameraX <= xmax-432:
+	elif playerCameraX > xmin+368 and playerCameraX < xmax-432:
 		backgroundX -= playerXvel
 		playerCameraX += playerXvel
+		
 		for i in range(enemies):
-			enemyPositionX[i] -= playerXvel
+			enemyX[i] = enemyPositionX[i]+ backgroundX
 
-	elif playerCameraX > xmax-432:
+	elif playerCameraX >= xmax-432:
 		playerCameraX += playerXvel
 		playerX += playerXvel
 		backgroundX = -xmax+800
+
 	print(playerX,backgroundX,enemyX)
 def death():
 	global playerY, playerState, playerSadness, playerSpeed

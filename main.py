@@ -24,6 +24,7 @@ playerColorLeft = pygame.image.load("sprites/playercolor-leftface.png")
 playerColorRight = pygame.image.load("sprites/playercolor-rightface.png")
 #enemy sprites
 enemy_black = pygame.image.load('sprites/enemy-black.png')
+enemy_black_dead = pygame.image.load('sprites/enemy-black-dead.png')
 #hands
 hand_color = pygame.image.load('sprites/hand-color.png')
 hand_black = pygame.image.load('sprites/hand-black.png')
@@ -100,12 +101,21 @@ enemyXmaxPositions = []
 enemyX = []
 enemyXchange = []
 enemySpeed = 2
+enemyState = []
+enemySprite = []
+
+#bullet variables
+bullets = 0
+bulletXposition = []
+bulletYposition = []
+bulletXvel = []
+bulletSpeed = 10
 
 #Scene boundries -----------------Lists of Tuples----------(X1,Y1,X2,Y2) (left to right , top to bottom)
 scene_1_boundry = [(0,431,589,700),(802,485,1530,700)]   
 scene_2_boundry = [(0,507,386,700),(540,0,1088,306),(542,499,1089,700),(1269,424,1990,700),(2300,419,2600,700),(2547,0,2600,700)]
 scene_3_boundry = [(0,0,51,600),(0,548,2500,548),(584,0,1718,380)]
-
+scene_4_boundry = []
 #Display functions-----------------------------------------------------
 def background(s):
 	screen.blit(s,(backgroundX,0))
@@ -300,11 +310,28 @@ def createEnemy(x,y,paceX,paceX2):
 	enemyXminPositions.append(paceX)
 	enemyXmaxPositions.append(paceX2)
 	enemyXchange.append(0)
+	enemyState.append('Alive')
+	enemySprite.append(enemy_black)
 	enemies+= 1
 
 def blitEnemy():
 	for i in range(enemies):
-		screen.blit(enemy_black,(enemyX[i],enemyPositionY[i]))	
+		screen.blit(enemySprite[i],(enemyX[i],enemyPositionY[i]))
+
+def createBullet(x,y,direction):
+
+	bulletXposition.append(x)
+	bulletYposition.append(y)
+	if direction is 'Left':
+		bulletXvel.append(-bulletSpeed)	
+	elif direction is 'Right':
+		bulletXvel.append(bulletSpeed)
+
+def isCollision(hitbox_X,hitbox_Y, hitbox_X2, hitbox_Y2, objectX, objectY):
+
+	if objectX >= hitbox_X and objectX <= hitbox_X2 and objectY >= hitbox_Y and objectY <= hitbox_Y2:
+		return True
+
 
 def wallCollision():
 	global collision, playerXvel
@@ -317,7 +344,7 @@ def win(condition,amount,condition2 = 'none',amount2 = 600): #condition is eithe
 		if playerCameraX > amount:
 			scene += 1
 			set()
-			createEnemy(250,450,225,275)
+			createEnemy(250,440,225,275)
 
 	elif condition is 'Y' and condition2 is 'none':
 		if playerY > amount:
@@ -378,6 +405,8 @@ while running:
 					playerPunchStage = 1
 				elif item is 'Gun' and GunCasingStage ==0:
 					GunCasingStage = 1 
+					bullets+= 1
+					createBullet(playerX,playerY,playerFace)
 			if event.key == pygame.K_q:
 				if currentItem < len(itemList)-1:
 					currentItem += 1
@@ -418,22 +447,47 @@ while running:
 		playerXvel = 0
 		collision = False
 	playerY -= int(playerYvel)
-
+	#bullet logic
+	removeBullets = 0
+	for i in range(bullets):
+		bulletXposition[i] += bulletXvel[i]
+	if bullets > 0:
+		if bulletXposition[0] >4500 or bulletXposition[0] < -100:
+			bulletXposition.pop(0)
+			bulletYposition.pop(0)
+			bulletXvel.pop(0)
+			removeBullets += 1
+		bullets -= removeBullets
 	# enemy logic
 	for i in range(enemies):
+		if enemyState[i] is 'Alive':
+			enemyXmin = enemyXminPositions[i]
+			enemyXmax = enemyXmaxPositions[i]
+			
+			enemyX[i] = enemyPositionX[i]+ backgroundX 
+			enemyX[i] += enemyXchange[i]
+			enemyXchange[i] += enemyXvel[i]
 
-		enemyXmin = enemyXminPositions[i]
-		enemyXmax = enemyXmaxPositions[i]
-		
-		enemyX[i] = enemyPositionX[i]+ backgroundX 
-		enemyX[i] += enemyXchange[i]
-		enemyXchange[i] += enemyXvel[i]
+			if enemyPositionX[i] + enemyXchange[i] > enemyXmax:
+				enemyXvel[i] = -enemySpeed
+			elif enemyPositionX[i] + enemyXchange[i] <enemyXmin:
+				enemyXvel[i] = enemySpeed 
 
-		if enemyPositionX[i] + enemyXchange[i] > enemyXmax:
-			enemyXvel[i] = -enemySpeed
-		elif enemyPositionX[i] + enemyXchange[i] <enemyXmin:
-			enemyXvel[i] = enemySpeed
-		print(enemyXmin,enemyXmax,enemyPositionX[i],enemyX[i])
+			#enemy hitboxes
+			X1,X2,Y1,Y2 = enemyX[i]-32,enemyX[i]+32,enemyPositionY[i]-32,enemyPositionY[i]+32
+			#bullet collision
+			for x in range(bullets):
+				if isCollision(X1,X2,Y1,Y2,bulletXposition[x],bulletYposition[x]):
+					enemyState[i] = 'Dead'
+			#player kill collisions
+			if playerX > X1 and playerX < X2 and playerY > Y1 and playerY < Y2:
+				death()
+
+		elif enemyState[i] is 'Dead':
+			enemySprite[i] = enemy_black_dead
+			enemyX[i] = enemyPositionX[i] + backgroundX
+
+
 	if scene == 1:
 		scene_1()
 	elif scene == 2:
@@ -457,25 +511,3 @@ while running:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	

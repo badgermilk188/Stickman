@@ -22,6 +22,20 @@ playerBlackLeft = pygame.image.load("sprites/playerblack-leftface.png")
 playerBlackRight = pygame.image.load("sprites/playerblack-rightface.png")
 playerColorLeft = pygame.image.load("sprites/playercolor-leftface.png")
 playerColorRight = pygame.image.load("sprites/playercolor-rightface.png")
+#player Death sprites
+death_right_1 = pygame.image.load('sprites/playerblack-rightface-death-1.png')
+death_right_2 = pygame.image.load('sprites/playerblack-rightface-death-2.png')
+death_right_3 = pygame.image.load('sprites/playerblack-rightface-death-3.png')
+death_right_4 = pygame.image.load('sprites/playerblack-rightface-death-4.png')
+death_right_5 = pygame.image.load('sprites/playerblack-rightface-death-5.png')
+death_right_6 = pygame.image.load('sprites/playerblack-rightface-death-6.png')
+death_right_7 = pygame.image.load('sprites/playerblack-rightface-death-7.png')
+death_right_8 = pygame.image.load('sprites/playerblack-rightface-death-8.png')
+death_right_9 = pygame.image.load('sprites/playerblack-rightface-death-9.png')
+death_right_10 = pygame.image.load('sprites/playerblack-rightface-death-10.png')
+death_right_11 = pygame.image.load('sprites/playerblack-rightface-death-11.png')
+death_right_12 = pygame.image.load('sprites/playerblack-rightface-death-12.png')
+
 #enemy sprites
 enemy_black = pygame.image.load('sprites/enemy-black.png')
 enemy_black_dead = pygame.image.load('sprites/enemy-black-dead.png')
@@ -48,6 +62,7 @@ sky_bg_1 = pygame.image.load("backgrounds/sky-background-1.png")
 sky_bg_2 = pygame.image.load("backgrounds/sky-background-2.png")
 black_bg_1 = pygame.image.load("backgrounds/background-black-1.png")
 black_bg_2 = pygame.image.load('backgrounds/background-black-2.png')
+news_bg_1 = pygame.image.load('backgrounds/background-news-1.png')
 #pygame displays 
 screen = pygame.display.set_mode((800,600))
 #icon
@@ -57,6 +72,8 @@ pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
 
 #all variables -----------------------------------------------
+
+time = 0
 
 collision = False
 backgroundX = 0
@@ -111,11 +128,14 @@ bulletYposition = []
 bulletXvel = []
 bulletSpeed = 30
 
+#death variables
+deathCount = 0
+
 #Scene boundries -----------------Lists of Tuples----------(X1,Y1,X2,Y2) (left to right , top to bottom)
 scene_1_boundry = [(0,431,589,700),(802,485,1530,700)]   
 scene_2_boundry = [(0,507,386,700),(540,0,1088,306),(542,499,1089,700),(1269,424,1990,700),(2300,419,2600,700),(2547,0,2600,700)]
 scene_3_boundry = [(0,0,81,600),(0,548,2500,548),(584,0,1718,380)]
-scene_4_boundry = [(0,553,1000,700),(452,279,480,371),(758,281,1000,700),(352,0,1000,279)]
+scene_4_boundry = [(0,557,1000,700),(452,279,480,371),(758,281,1000,700),(352,0,1000,279)]
 #Display functions-----------------------------------------------------
 def background(s):
 	screen.blit(s,(backgroundX,0))
@@ -155,101 +175,104 @@ def boundry(scene_Boundry):
 def blitPlayer():
 	global playerHandPosition_X, playerHandPosition_Y,handY, playerPunchStage, casingY,casingX,GunCasingStage, casing
 	#player logic and hand X logic
-	if playerFace is 'Right' and playerState is 'Happy':
-		player = playerColorRight
-		if item is 'Fist':
-			hand = hand_color
-		elif item is 'Gun':
-			hand = gun_color_right
-		playerHandPosition_X = playerX + 36
-	elif playerFace is 'Right' and playerState is 'Sad':
-		player = playerBlackRight
-		if item is 'Fist':
-			hand = hand_black
-		elif item is 'Gun':
-			hand = gun_color_right
-		
-		playerHandPosition_X = playerX + 36
-	elif playerFace is 'Left' and playerState is 'Happy':
-		player = playerColorLeft
-		if item is 'Fist':
-			hand = hand_color
-		elif item is 'Gun':
-			hand = gun_color_left
-		playerHandPosition_X = playerX + 8
-	else:
-		player = playerBlackLeft
-		if item is 'Fist':
-			hand = hand_black
-		elif item is 'Gun':
-			hand = gun_color_left
-		playerHandPosition_X = playerX + 8
-
-	#hand Y logic
-	
-	if playerYvel > 0:
-		if handY >21:
-			handY -= 1
-	elif playerYvel < playerGravity:
-		if handY <31:
-			handY += .5
-
-	else:
-		handY = 26
-	# punch logic
-	if item is 'Fist':
-		if playerPunchStage > 0 and playerPunchStage <= 8:
-			if playerFace is 'Left':
-				playerHandPosition_X -= playerPunchStage*2
-				playerPunchStage +=1
-			if playerFace is 'Right':
-				playerHandPosition_X += playerPunchStage*2
-				playerPunchStage +=1
-		if playerPunchStage > 8:
-			if playerFace is 'Left':
-				playerHandPosition_X += playerPunchStage
-				playerPunchStage +=1
-			if playerFace is 'Right':
-				playerHandPosition_X -= playerPunchStage
-				playerPunchStage +=1
-
-			if playerPunchStage == 10:
-				playerPunchStage = 0
-
-	playerHandPosition_Y = playerY+handY
-	#gun logic
-	if item is 'Gun':
-		casingX = playerHandPosition_X + 10
-		casingY = playerHandPosition_Y
-		if GunCasingStage  >0 and GunCasingStage <= 4:
-			casing = casing_1
-			GunCasingStage += 1
-
-		elif GunCasingStage > 4 and GunCasingStage <=8:
-			casing = casing_2
-			GunCasingStage += 1
-		elif GunCasingStage >8 and GunCasingStage <= 12:
-			casing = casing_3
-			GunCasingStage += 1
-		elif GunCasingStage > 12 and GunCasingStage<=16:
-			casing = casing_4
-			GunCasingStage += 1
-		
-		if GunCasingStage > 16:
-			GunCasingStage = 0
-		if GunCasingStage > 10:
-			casingY += GunCasingStage*1.5
-		elif GunCasingStage < 8:
-			casingY -= GunCasingStage*1.5
+	if deathCount == 0:
+		if playerFace is 'Right' and playerState is 'Happy':
+			player = playerColorRight
+			if item is 'Fist':
+				hand = hand_color
+			elif item is 'Gun':
+				hand = gun_color_right
+			playerHandPosition_X = playerX + 36
+		elif playerFace is 'Right' and playerState is 'Sad':
+			player = playerBlackRight
+			if item is 'Fist':
+				hand = hand_black
+			elif item is 'Gun':
+				hand = gun_color_right
+			
+			playerHandPosition_X = playerX + 36
+		elif playerFace is 'Left' and playerState is 'Happy':
+			player = playerColorLeft
+			if item is 'Fist':
+				hand = hand_color
+			elif item is 'Gun':
+				hand = gun_color_left
+			playerHandPosition_X = playerX + 8
 		else:
-			casingY += GunCasingStage
-		if playerFace is 'Right':
-			casingX += GunCasingStage
-		else:
-			casingX -= GunCasingStage
+			player = playerBlackLeft
+			if item is 'Fist':
+				hand = hand_black
+			elif item is 'Gun':
+				hand = gun_color_left
+			playerHandPosition_X = playerX + 8
 
+		#hand Y logic
+		
+		if playerYvel > 0:
+			if handY >21:
+				handY -= 1
+		elif playerYvel < playerGravity:
+			if handY <31:
+				handY += .5
+
+		else:
+			handY = 26
+		# punch logic
+		if item is 'Fist':
+			if playerPunchStage > 0 and playerPunchStage <= 8:
+				if playerFace is 'Left':
+					playerHandPosition_X -= playerPunchStage*2
+					playerPunchStage +=1
+				if playerFace is 'Right':
+					playerHandPosition_X += playerPunchStage*2
+					playerPunchStage +=1
+			if playerPunchStage > 8:
+				if playerFace is 'Left':
+					playerHandPosition_X += playerPunchStage
+					playerPunchStage +=1
+				if playerFace is 'Right':
+					playerHandPosition_X -= playerPunchStage
+					playerPunchStage +=1
+
+				if playerPunchStage == 10:
+					playerPunchStage = 0
+
+		playerHandPosition_Y = playerY+handY
+		#gun logic
+		if item is 'Gun':
+			casingX = playerHandPosition_X + 10
+			casingY = playerHandPosition_Y
+			if GunCasingStage  >0 and GunCasingStage <= 4:
+				casing = casing_1
+				GunCasingStage += 1
+
+			elif GunCasingStage > 4 and GunCasingStage <=8:
+				casing = casing_2
+				GunCasingStage += 1
+			elif GunCasingStage >8 and GunCasingStage <= 12:
+				casing = casing_3
+				GunCasingStage += 1
+			elif GunCasingStage > 12 and GunCasingStage<=16:
+				casing = casing_4
+				GunCasingStage += 1
+			
+			if GunCasingStage > 16:
+				GunCasingStage = 0
+			if GunCasingStage > 10:
+				casingY += GunCasingStage*1.5
+			elif GunCasingStage < 8:
+				casingY -= GunCasingStage*1.5
+			else:
+				casingY += GunCasingStage
+			if playerFace is 'Right':
+				casingX += GunCasingStage
+			else:
+				casingX -= GunCasingStage
+		screen.blit(hand,(playerHandPosition_X,playerHandPosition_Y))
+	elif deathCount > 0:
+		player = suicide()
 	screen.blit(player,(playerX,playerY))
-	screen.blit(hand,(playerHandPosition_X,playerHandPosition_Y))
+	
 	if GunCasingStage>0 and item is 'Gun':
 		screen.blit(casing,(casingX,casingY))
 def cameraScroll(xmax,xmin = 0):
@@ -315,12 +338,53 @@ def set():
 	enemyXchange = []
 	enemyState = []
 	enemySprite = []
+	deathCount = 0 
 	scene += 1
 def setPlayerPosition(x,y):
 	global playerX, playerY, playerCameraX
 	playerY = y
 	playerX = x 
 	playerCameraX = x
+
+def suicide(): #120 frames?
+	global deathCount
+	deathCount += 1 
+	returnSurface = death_right_1
+	
+	if deathCount > 0 and deathCount <= 10:
+		returnSurface = death_right_1
+	elif deathCount > 10 and deathCount <= 20:
+		returnSurface = death_right_2
+	elif deathCount> 20 and deathCount <= 30:
+		returnSurface = death_right_3
+	elif deathCount > 30 and deathCount <= 40:
+		returnSurface = death_right_4
+	elif deathCount > 40 and deathCount <= 50:
+		returnSurface = death_right_5
+	elif deathCount > 50 and deathCount <= 60:
+		returnSurface = death_right_6
+	elif deathCount > 60 and deathCount <= 70:
+		returnSurface = death_right_7
+	elif deathCount > 70 and deathCount <= 80:
+		returnSurface = death_right_8
+	elif deathCount > 80 and deathCount <= 90:
+		returnSurface = death_right_9
+	elif deathCount > 90 and deathCount <= 100:
+		returnSurface = death_right_10
+	elif deathCount > 100 and deathCount <= 110:
+		returnSurface = death_right_11
+	elif deathCount > 110:
+		if deathCount >= 140:
+			deathCount = 0
+			death()
+		returnSurface = death_right_12
+	if playerFace is 'Left':
+		return pygame.transform.flip(returnSurface,True,False)
+	else:
+		return returnSurface
+
+
+
 
 def createEnemy(x,y,paceX,paceX2):
 	global enemies
@@ -394,6 +458,8 @@ def scene_2():
 	if win('X',1950,'Y',600):
 		set()
 		createEnemy(1000,482,920,1080)
+		global playerStuckSad
+		playerStuckSad = True
 	
 def scene_3():
 	boundry(scene_3_boundry)
@@ -404,12 +470,19 @@ def scene_3():
 	if win('X',2400):
 		set()
 		createEnemy(380,490,330,430)
+		global playerStuckSad
+		playerStuckSad = True
 def scene_4():
 	boundry(scene_4_boundry)
 	background(black_bg_2)
 	blitEnemy()
 	blitPlayer()
 	cameraScroll(1000)
+	if deathCount == 139:
+		set()
+def scene_5():
+	#use time variable here to 3600 or something 
+	background(news_bg_1)
 
 
 #mainloop --  -----------------------------------------------------------
@@ -419,28 +492,32 @@ while running:
 		if event.type == pygame.QUIT:
 			running = False
 		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-				playerFace = 'Left'
-				playerXvel -= playerSpeed
-			if event.key == pygame.K_RIGHT or event.key == pygame.K_d:	
-				playerFace = 'Right'
-				playerXvel += playerSpeed
-			if playerJumpState is 'Standing' and event.key == pygame.K_UP or playerJumpState is 'Standing' and event.key == pygame.K_w :
-				playerJumpState = 'Jumping'
-				playerYvel = playerJumpHeight
-			if playerPunchStage == 0 and event.key== pygame.K_SPACE:
-				if item =='Fist':
-					playerPunchStage = 1
-				elif item is 'Gun' and GunCasingStage ==0:
-					GunCasingStage = 1 
-					bullets+= 1
-					createBullet(playerX,playerY,playerFace)
-			if event.key == pygame.K_q:
-				if currentItem < len(itemList)-1:
-					currentItem += 1
-				else:
-					currentItem = 0
-				item = itemList[currentItem]
+			if deathCount == 0:
+				if event.key == pygame.K_LEFT or event.key == pygame.K_a:
+					playerFace = 'Left'
+					playerXvel = -playerSpeed
+				if event.key == pygame.K_RIGHT or event.key == pygame.K_d:	
+					playerFace = 'Right'
+					playerXvel = playerSpeed
+				if playerJumpState is 'Standing' and event.key == pygame.K_UP or playerJumpState is 'Standing' and event.key == pygame.K_w :
+					playerJumpState = 'Jumping'
+					playerYvel = playerJumpHeight
+				if playerPunchStage == 0 and event.key== pygame.K_SPACE:
+					if item =='Fist':
+						playerPunchStage = 1
+					elif item is 'Gun' and GunCasingStage ==0:
+						GunCasingStage = 1 
+						bullets+= 1
+						createBullet(playerX,playerY,playerFace)
+				if event.key == pygame.K_q:
+					if currentItem < len(itemList)-1:
+						currentItem += 1
+					else:
+						currentItem = 0
+					item = itemList[currentItem]
+				if event.key == pygame.K_r:
+					if playerState is 'Sad':
+						deathCount = 1
 		if event.type == pygame.KEYUP:
 			if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT or event.key == pygame.K_a or event.key == pygame.K_d:
 				playerXvel = 0
@@ -503,11 +580,12 @@ while running:
 				enemyXvel[i] = enemySpeed 
 
 			#enemy hitboxes
-			X1,X2,Y1,Y2 = enemyX[i],enemyX[i]+64,enemyPositionY[i],enemyPositionY[i]+64
+			X1,X2,Y1,Y2 = enemyX[i]-32,enemyX[i]+32,enemyPositionY[i],enemyPositionY[i]+64
 			#bullet collision
 			for x in range(bullets):
-				if bulletXposition[x] <= X2 and bulletXposition[x] >= X1 and bulletYposition[x] >= Y1 and bulletYposition[x] <= Y2 or isCollision(X1,Y1,X2,Y2,bulletXposition[x],bulletYposition[x]):
+				if isCollision(X1,Y1,X2,Y2,bulletXposition[x],bulletYposition[x]):
 					
+					#bulletXposition[x] <= X2 and bulletXposition[x] >= X1 and bulletYposition[x] >= Y1 and bulletYposition[x] <= Y2 or 
 					enemyState[i] = 'Dead'
 			#player kill collisions
 			if playerX > X1 and playerX < X2 and playerY > Y1 and playerY < Y2:
@@ -526,6 +604,8 @@ while running:
 		scene_3()
 	elif scene == 4:
 		scene_4()
+	elif scene == 5:
+		scene_5()
 
 	pygame.display.update()
 	clock.tick(60)

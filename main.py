@@ -67,7 +67,7 @@ scene = 1
 
 playerX = 100
 playerY = 50
-playerSpeed = 4
+playerSpeed = 6
 playerXvel = 0
 playerYvel = 0
 playerGravity = .15
@@ -77,7 +77,7 @@ playerState = 'Happy'  #Happy or Sad (depressed)
 playerJumpState = 'Falling' #Standing, Jumping
 playerFallingState = 'Falling' #falling , Standing
 playerSadness = 0
-playerSadSpeed = 2
+playerSadSpeed = 4
 playerStuckSad = False
 #hads for player
 playerHandPosition_X = 0
@@ -109,13 +109,13 @@ bullets = 0
 bulletXposition = []
 bulletYposition = []
 bulletXvel = []
-bulletSpeed = 10
+bulletSpeed = 30
 
 #Scene boundries -----------------Lists of Tuples----------(X1,Y1,X2,Y2) (left to right , top to bottom)
 scene_1_boundry = [(0,431,589,700),(802,485,1530,700)]   
 scene_2_boundry = [(0,507,386,700),(540,0,1088,306),(542,499,1089,700),(1269,424,1990,700),(2300,419,2600,700),(2547,0,2600,700)]
-scene_3_boundry = [(0,0,51,600),(0,548,2500,548),(584,0,1718,380)]
-scene_4_boundry = []
+scene_3_boundry = [(0,0,81,600),(0,548,2500,548),(584,0,1718,380)]
+scene_4_boundry = [(0,553,1000,700),(452,279,480,371),(758,281,1000,700),(352,0,1000,279)]
 #Display functions-----------------------------------------------------
 def background(s):
 	screen.blit(s,(backgroundX,0))
@@ -284,15 +284,18 @@ def death():
 	playerY = 0
 	playerState = 'Happy'
 	playerSadness = 0
-def set(pX = 100,pY = 100,pss = False):
+def set():
 	global playerX,playerY, playerXvel,playerYvel
-	global playerFace,playerState,playerStuckSad
+	global playerFace,playerState,playerStuckSad, scene
 	global playerFallingState,playerSadness, backgroundX, playerCameraX
+	global enemies, enemyList, enemyPositionX, enemyPositionY, enemyXvel,enemySprite
+	global enemyXminPositions, enemyXmaxPositions, enemyX, enemyXchange, enemyState
+
 	backgroundX = 0
 	playerCameraX = 100
-	playerX = pX
-	playerY = pY
-	playerSpeed = 4
+	playerX = 100
+	playerY = 100
+	playerSpeed = 6
 	playerXvel = 0
 	playerYvel = 0
 	playerFace = 'Right' 	# Right or Left
@@ -300,7 +303,25 @@ def set(pX = 100,pY = 100,pss = False):
 	playerJumpState = 'Falling' #Standing, Jumping
 	playerFallingState = 'Falling' #falling , Standing
 	playerSadness = 0
-	playerStuckSad = pss
+	playerStuckSad = False
+	enemies = 0
+	enemyList = []
+	enemyPositionX = []
+	enemyPositionY = []
+	enemyXvel = []
+	enemyXminPositions = []
+	enemyXmaxPositions = []
+	enemyX = []
+	enemyXchange = []
+	enemyState = []
+	enemySprite = []
+	scene += 1
+def setPlayerPosition(x,y):
+	global playerX, playerY, playerCameraX
+	playerY = y
+	playerX = x 
+	playerCameraX = x
+
 def createEnemy(x,y,paceX,paceX2):
 	global enemies
 	enemyPositionX.append(x)
@@ -324,7 +345,7 @@ def createBullet(x,y,direction):
 	bulletYposition.append(y)
 	if direction is 'Left':
 		bulletXvel.append(-bulletSpeed)	
-	elif direction is 'Right':
+	if direction is 'Right':
 		bulletXvel.append(bulletSpeed)
 
 def isCollision(hitbox_X,hitbox_Y, hitbox_X2, hitbox_Y2, objectX, objectY):
@@ -338,22 +359,18 @@ def wallCollision():
 	collision = True
 	playerXvel = -playerXvel
 def win(condition,amount,condition2 = 'none',amount2 = 600): #condition is either X or Y
-	global playerCameraX,playerY, scene
+
 
 	if condition is 'X' and condition2 is 'none':
 		if playerCameraX > amount:
-			scene += 1
-			set()
-			createEnemy(250,440,225,275)
+			return True
 
 	elif condition is 'Y' and condition2 is 'none':
 		if playerY > amount:
-			scene += 1
-			set(5,400)
+			return True
 	else:
 		if playerCameraX > amount and playerY > amount2:
-			scene += 1
-			set(150,5,True)
+			return True
 
 
 #ALL SCENES -  ------------------------------------------
@@ -363,7 +380,9 @@ def scene_1():
 	background(sky_bg_1)
 	blitPlayer()
 	cameraScroll(1500)
-	win('X',1500)
+	if win('X',1500):
+		set()
+		setPlayerPosition(15,430)
 
 def scene_2():
 
@@ -372,18 +391,27 @@ def scene_2():
 	blitEnemy()
 	blitPlayer()
 	cameraScroll(2600)
-	win('X',1990,'Y',600)
+	if win('X',1950,'Y',600):
+		set()
+		createEnemy(1000,482,920,1080)
 	
 def scene_3():
 	boundry(scene_3_boundry)
 	background(black_bg_1)
+	blitEnemy()
 	blitPlayer() 
 	cameraScroll(2400)
-	win('X',2400)
+	if win('X',2400):
+		set()
+		createEnemy(380,490,330,430)
 def scene_4():
+	boundry(scene_4_boundry)
 	background(black_bg_2)
+	blitEnemy()
 	blitPlayer()
 	cameraScroll(1000)
+
+
 #mainloop --  -----------------------------------------------------------
 while running:
 
@@ -451,8 +479,9 @@ while running:
 	removeBullets = 0
 	for i in range(bullets):
 		bulletXposition[i] += bulletXvel[i]
+
 	if bullets > 0:
-		if bulletXposition[0] >4500 or bulletXposition[0] < -100:
+		if bulletXposition[0] >8000 or bulletXposition[0] < -100:
 			bulletXposition.pop(0)
 			bulletYposition.pop(0)
 			bulletXvel.pop(0)
@@ -474,10 +503,11 @@ while running:
 				enemyXvel[i] = enemySpeed 
 
 			#enemy hitboxes
-			X1,X2,Y1,Y2 = enemyX[i]-32,enemyX[i]+32,enemyPositionY[i]-32,enemyPositionY[i]+32
+			X1,X2,Y1,Y2 = enemyX[i],enemyX[i]+64,enemyPositionY[i],enemyPositionY[i]+64
 			#bullet collision
 			for x in range(bullets):
-				if isCollision(X1,X2,Y1,Y2,bulletXposition[x],bulletYposition[x]):
+				if bulletXposition[x] <= X2 and bulletXposition[x] >= X1 and bulletYposition[x] >= Y1 and bulletYposition[x] <= Y2 or isCollision(X1,Y1,X2,Y2,bulletXposition[x],bulletYposition[x]):
+					
 					enemyState[i] = 'Dead'
 			#player kill collisions
 			if playerX > X1 and playerX < X2 and playerY > Y1 and playerY < Y2:

@@ -63,6 +63,7 @@ sky_bg_2 = pygame.image.load("backgrounds/sky-background-2.png")
 black_bg_1 = pygame.image.load("backgrounds/background-black-1.png")
 black_bg_2 = pygame.image.load('backgrounds/background-black-2.png')
 news_bg_1 = pygame.image.load('backgrounds/background-news-1.png')
+war_bg_1 = pygame.image.load('backgrounds/war-background-1.png')
 #pygame displays 
 screen = pygame.display.set_mode((800,600))
 #icon
@@ -74,6 +75,7 @@ clock = pygame.time.Clock()
 #all variables -----------------------------------------------
 
 time = 0
+Start = True
 
 collision = False
 backgroundX = 0
@@ -136,6 +138,9 @@ scene_1_boundry = [(0,431,589,700),(802,485,1530,700)]
 scene_2_boundry = [(0,507,386,700),(540,0,1088,306),(542,499,1089,700),(1269,424,1990,700),(2300,419,2600,700),(2547,0,2600,700)]
 scene_3_boundry = [(0,0,81,600),(0,548,2500,548),(584,0,1718,380)]
 scene_4_boundry = [(0,557,1000,700),(452,279,480,371),(758,281,1000,700),(352,0,1000,279)]
+scene_6_boundry = [(0,517,393,600),(393,587,1399,600),(1398,534,2068,600),(1494,474,1578,550),(1746,474,1837,550),(2208,530,2904,600),
+					(2657,455,2767,535),(2897,452,3834,600),(2950,376,3112,455),(3275,301,3293,337),(3292,245,3662,275),(4034,543,4206,600),
+					(4350,465,6100,600),(5499,0,6000,342)]
 #Display functions-----------------------------------------------------
 def background(s):
 	screen.blit(s,(backgroundX,0))
@@ -307,9 +312,13 @@ def death():
 	playerY = 0
 	playerState = 'Happy'
 	playerSadness = 0
+def nextScene():
+	global scene, Start
+	scene += 1
+	Start = True
 def set():
 	global playerX,playerY, playerXvel,playerYvel
-	global playerFace,playerState,playerStuckSad, scene
+	global playerFace,playerState,playerStuckSad
 	global playerFallingState,playerSadness, backgroundX, playerCameraX
 	global enemies, enemyList, enemyPositionX, enemyPositionY, enemyXvel,enemySprite
 	global enemyXminPositions, enemyXmaxPositions, enemyX, enemyXchange, enemyState
@@ -339,14 +348,14 @@ def set():
 	enemyState = []
 	enemySprite = []
 	deathCount = 0 
-	scene += 1
+
 def setPlayerPosition(x,y):
 	global playerX, playerY, playerCameraX
 	playerY = y
 	playerX = x 
 	playerCameraX = x
 
-def suicide(): #120 frames?
+def suicide(): #140 frames?
 	global deathCount
 	deathCount += 1 
 	returnSurface = death_right_1
@@ -383,6 +392,11 @@ def suicide(): #120 frames?
 	else:
 		return returnSurface
 
+def start():
+	global Start
+	if Start == True:
+		Start = False
+		return True
 
 
 
@@ -440,50 +454,73 @@ def win(condition,amount,condition2 = 'none',amount2 = 600): #condition is eithe
 #ALL SCENES -  ------------------------------------------
 
 def scene_1():
+	if start():
+		set()
 	boundry(scene_1_boundry)
 	background(sky_bg_1)
 	blitPlayer()
 	cameraScroll(1500)
 	if win('X',1500):
-		set()
-		setPlayerPosition(15,430)
+		nextScene()
+		
 
 def scene_2():
-
+	if start():
+		set()
+		setPlayerPosition(15,430)
 	boundry(scene_2_boundry)
 	background(sky_bg_2)
 	blitEnemy()
 	blitPlayer()
 	cameraScroll(2600)
 	if win('X',1950,'Y',600):
+		nextScene()
+		
+	
+def scene_3():
+	if start():
 		set()
 		createEnemy(1000,482,920,1080)
 		global playerStuckSad
 		playerStuckSad = True
-	
-def scene_3():
 	boundry(scene_3_boundry)
 	background(black_bg_1)
 	blitEnemy()
 	blitPlayer() 
 	cameraScroll(2400)
 	if win('X',2400):
+		nextScene()
+		
+def scene_4():
+	if start():
 		set()
 		createEnemy(380,490,330,430)
 		global playerStuckSad
 		playerStuckSad = True
-def scene_4():
 	boundry(scene_4_boundry)
 	background(black_bg_2)
 	blitEnemy()
 	blitPlayer()
 	cameraScroll(1000)
 	if deathCount == 139:
-		set()
+		nextScene()
 def scene_5():
+	global time
 	#use time variable here to 3600 or something 
+	if start():
+		set()
 	background(news_bg_1)
-
+	time += 1
+	if time == 800:
+		time = 0
+		nextScene()
+def scene_6():
+	if start():
+		set()
+	boundry(scene_6_boundry)
+	background(war_bg_1)
+	blitPlayer()
+	cameraScroll(6000)
 
 #mainloop --  -----------------------------------------------------------
 while running:
@@ -606,18 +643,8 @@ while running:
 		scene_4()
 	elif scene == 5:
 		scene_5()
+	elif scene == 6:
+		scene_6()
 
 	pygame.display.update()
 	clock.tick(60)
-
-
-
-
-
-
-
-
-
-
-
-

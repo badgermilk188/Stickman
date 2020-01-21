@@ -178,12 +178,14 @@ def boundry(scene_Boundry):
 	if playerY > 620:
 		death()
 
-def blitPlayer():
+def blitPlayer(PlayerChoice =  'None'):
 	global playerHandPosition_X, playerHandPosition_Y,handY, playerPunchStage, casingY,casingX,GunCasingStage, casing
 	#player logic and hand X logic
 	if deathCount == 0:
 		if playerFace is 'Right' and playerState is 'Happy':
 			player = playerColorRight
+			if PlayerChoice is not 'None':
+				player = PlayerChoice
 			if item is 'Fist':
 				hand = hand_color
 			elif item is 'Gun':
@@ -199,6 +201,8 @@ def blitPlayer():
 			playerHandPosition_X = playerX + 36
 		elif playerFace is 'Left' and playerState is 'Happy':
 			player = playerColorLeft
+			if PlayerChoice is not 'None':
+				player = pygame.transform.flip(PlayerChoice,True,False)
 			if item is 'Fist':
 				hand = hand_color
 			elif item is 'Gun':
@@ -274,6 +278,8 @@ def blitPlayer():
 				casingX += GunCasingStage
 			else:
 				casingX -= GunCasingStage
+			if GunCasingStage >0 and GunCasingStage < 5:
+				hand = pygame.transform.rotate(hand,-GunCasingStage*2)
 		screen.blit(hand,(playerHandPosition_X,playerHandPosition_Y))
 	elif deathCount > 0:
 		player = suicide()
@@ -403,8 +409,6 @@ def start():
 		Start = False
 		return True
 
-
-
 def createEnemy(x,y,paceX,paceX2):
 	global enemies
 	enemyPositionX.append(x)
@@ -439,7 +443,6 @@ def isCollision(hitbox_X,hitbox_Y, hitbox_X2, hitbox_Y2, objectX, objectY):
 	if objectX >= hitbox_X and objectX <= hitbox_X2 and objectY >= hitbox_Y and objectY <= hitbox_Y2:
 		return True
 
-
 def wallCollision():
 	global collision, playerXvel
 	collision = True
@@ -464,6 +467,9 @@ def win(condition,amount,condition2 = 'none',amount2 = 600): #condition is eithe
 def scene_1():
 	if start():
 		set()
+		setPlayerPosition(15,0)
+	global playerSadness
+	playerSadness = 0
 	boundry(scene_1_boundry)
 	background(sky_bg_1)
 	blitPlayer()
@@ -475,7 +481,9 @@ def scene_1():
 def scene_2():
 	if start():
 		set()
-		setPlayerPosition(15,430)
+		setPlayerPosition(5,440)
+	global playerSadness
+	playerSadness = 0
 	boundry(scene_2_boundry)
 	background(sky_bg_2)
 	blitEnemy()
@@ -488,6 +496,7 @@ def scene_2():
 def scene_3():
 	if start():
 		set()
+		setPlayerPosition(300,0)
 		createEnemy(1000,482,920,1080)
 		createEnemy(500,482,400,600)
 		global playerStuckSad
@@ -503,9 +512,11 @@ def scene_3():
 def scene_4():
 	if start():
 		set()
+		setPlayerPosition(5,488)
 		createEnemy(380,490,330,430)
 		global playerStuckSad
 		playerStuckSad = True
+		
 	boundry(scene_4_boundry)
 	background(black_bg_2)
 	blitEnemy()
@@ -526,6 +537,9 @@ def scene_5():
 def scene_6():
 	if start():
 		set()
+		setPlayerPosition(5,451)
+	global playerSadness
+	playerSadness = 0
 	boundry(scene_6_boundry)
 	background(war_bg_1)
 	blitPlayer()

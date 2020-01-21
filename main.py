@@ -129,7 +129,8 @@ bulletXposition = []
 bulletYposition = []
 bulletXvel = []
 bulletSpeed = 30
-
+bulletXmax = []
+bulletDistance = 500
 #death variables
 deathCount = 0
 
@@ -305,6 +306,7 @@ def cameraScroll(xmax,xmin = 0):
 
 
 def death():
+	'''
 	global playerY, playerState, playerSadness, playerSpeed
 
 	if playerState is 'Sad':
@@ -312,6 +314,9 @@ def death():
 	playerY = 0
 	playerState = 'Happy'
 	playerSadness = 0
+	'''
+	global Start
+	Start = True
 def nextScene():
 	global scene, Start
 	scene += 1
@@ -421,10 +426,13 @@ def createBullet(x,y,direction):
 
 	bulletXposition.append(x)
 	bulletYposition.append(y)
+
 	if direction is 'Left':
 		bulletXvel.append(-bulletSpeed)	
+		bulletXmax.append(x-bulletDistance)
 	if direction is 'Right':
 		bulletXvel.append(bulletSpeed)
+		bulletXmax.append(x+bulletDistance)
 
 def isCollision(hitbox_X,hitbox_Y, hitbox_X2, hitbox_Y2, objectX, objectY):
 
@@ -481,6 +489,7 @@ def scene_3():
 	if start():
 		set()
 		createEnemy(1000,482,920,1080)
+		createEnemy(500,482,400,600)
 		global playerStuckSad
 		playerStuckSad = True
 	boundry(scene_3_boundry)
@@ -595,10 +604,12 @@ while running:
 		bulletXposition[i] += bulletXvel[i]
 
 	if bullets > 0:
-		if bulletXposition[0] >8000 or bulletXposition[0] < -100:
+		if bulletXvel[0]<0 and bulletXposition[0] < bulletXmax[0] or bulletXvel[0]>0 and bulletXposition[0] > bulletXmax[0]:
+		#if bulletXposition[0] >8000 or bulletXposition[0] < -100:
 			bulletXposition.pop(0)
 			bulletYposition.pop(0)
 			bulletXvel.pop(0)
+			bulletXmax.pop(0)
 			removeBullets += 1
 		bullets -= removeBullets
 	# enemy logic

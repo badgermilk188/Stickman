@@ -122,6 +122,8 @@ enemyXchange = []
 enemySpeed = 2
 enemyState = []
 enemySprite = []
+enemyType = [] #either "None" or 'Gun'
+enemyFace = [] #Right or Left
 
 #bullet variables
 bullets = 0
@@ -409,7 +411,7 @@ def start():
 		Start = False
 		return True
 
-def createEnemy(x,y,paceX,paceX2):
+def createEnemy(x,y,paceX,paceX2,typeen = 'None'):
 	global enemies
 	enemyPositionX.append(x)
 	enemyX.append(x)
@@ -419,12 +421,19 @@ def createEnemy(x,y,paceX,paceX2):
 	enemyXmaxPositions.append(paceX2)
 	enemyXchange.append(0)
 	enemyState.append('Alive')
+	enemyFace.append('Left')
 	enemySprite.append(enemy_black)
+	enemyType.append(typeen)
 	enemies+= 1
 
 def blitEnemy():
 	for i in range(enemies):
 		screen.blit(enemySprite[i],(enemyX[i],enemyPositionY[i]))
+		if enemyType[i] is 'Gun' and enemyState[i] is 'Alive':
+			if enemyFace[i] is 'Left':
+				screen.blit(gun_color_left,(enemyX[i],enemyPositionY[i]+16))
+			else:
+				screen.blit(gun_color_right,(enemyX[i]+40,enemyPositionY[i]+16))
 
 def createBullet(x,y,direction):
 
@@ -467,11 +476,13 @@ def win(condition,amount,condition2 = 'none',amount2 = 600): #condition is eithe
 def scene_1():
 	if start():
 		set()
+		createEnemy(800,400,750,850,'Gun')
 		setPlayerPosition(15,0)
 	global playerSadness
 	playerSadness = 0
 	boundry(scene_1_boundry)
 	background(sky_bg_1)
+	blitEnemy()
 	blitPlayer()
 	cameraScroll(1500)
 	if win('X',1500):
@@ -636,11 +647,17 @@ while running:
 			enemyX[i] += enemyXchange[i]
 			enemyXchange[i] += enemyXvel[i]
 
+
+
 			if enemyPositionX[i] + enemyXchange[i] > enemyXmax:
 				enemyXvel[i] = -enemySpeed
 			elif enemyPositionX[i] + enemyXchange[i] <enemyXmin:
 				enemyXvel[i] = enemySpeed 
-
+			#face 
+			if enemyXvel[i] > 0:
+				enemyFace[i] = 'Right'
+			else:
+				enemyFace[i] = 'Left'
 			#enemy hitboxes
 			X1,X2,Y1,Y2 = enemyX[i]-32,enemyX[i]+32,enemyPositionY[i],enemyPositionY[i]+64
 			#bullet collision

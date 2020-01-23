@@ -1,5 +1,6 @@
 import pygame
 import random
+import EnemyLogic
 from pygame import mixer
 
 
@@ -98,7 +99,7 @@ playerFallingState = 'Falling' #falling , Standing
 playerSadness = 0
 playerSadSpeed = 4
 playerStuckSad = False
-#hads for player
+#hands for player
 playerHandPosition_X = 0
 playerHandPosition_Y = 0
 playerPunchStage = 0 # 0 - 16 depending on where it is.
@@ -124,6 +125,17 @@ enemyState = []
 enemySprite = []
 enemyType = [] #either "None" or 'Gun'
 enemyFace = [] #Right or Left
+#enemyBullets
+enemyBullets = [] #stores lists inside of lists
+enemyBulletXposition = []
+enemyBulletYposition = []
+enemyBulletXvel = []
+enemyBulletSpeed = 30
+enemyBulletDistance = 500
+enemyAttackDistance = 500
+
+
+
 
 #bullet variables
 bullets = 0
@@ -335,6 +347,7 @@ def set():
 	global playerFallingState,playerSadness, backgroundX, playerCameraX
 	global enemies, enemyList, enemyPositionX, enemyPositionY, enemyXvel,enemySprite
 	global enemyXminPositions, enemyXmaxPositions, enemyX, enemyXchange, enemyState
+	global enemyFace, enemyType
 
 	backgroundX = 0
 	playerCameraX = 100
@@ -360,6 +373,9 @@ def set():
 	enemyXchange = []
 	enemyState = []
 	enemySprite = []
+	enemyFace = []
+	enemySprite = []
+	enemyType = []
 	deathCount = 0 
 
 def setPlayerPosition(x,y):
@@ -428,13 +444,13 @@ def createEnemy(x,y,paceX,paceX2,typeen = 'None'):
 
 def blitEnemy():
 	for i in range(enemies):
-		screen.blit(enemySprite[i],(enemyX[i],enemyPositionY[i]))
+		
 		if enemyType[i] is 'Gun' and enemyState[i] is 'Alive':
 			if enemyFace[i] is 'Left':
 				screen.blit(gun_color_left,(enemyX[i],enemyPositionY[i]+16))
 			else:
 				screen.blit(gun_color_right,(enemyX[i]+40,enemyPositionY[i]+16))
-
+		screen.blit(enemySprite[i],(enemyX[i],enemyPositionY[i]))
 def createBullet(x,y,direction):
 
 	bulletXposition.append(x)
@@ -640,12 +656,15 @@ while running:
 	# enemy logic
 	for i in range(enemies):
 		if enemyState[i] is 'Alive':
+			print(enemyX[i],playerCameraX)
+			
 			enemyXmin = enemyXminPositions[i]
 			enemyXmax = enemyXmaxPositions[i]
 			
 			enemyX[i] = enemyPositionX[i]+ backgroundX 
-			enemyX[i] += enemyXchange[i]
-			enemyXchange[i] += enemyXvel[i]
+			if (((playerX - (enemyX[i]) )**2) + ((playerY - enemyPositionY[i])**2))**.5 <= enemyAttackDistance:
+				enemyX[i] += enemyXchange[i]
+				enemyXchange[i] += enemyXvel[i]
 
 
 

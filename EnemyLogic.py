@@ -28,8 +28,8 @@ def returnValues(boundaries,target_X,target_Y,current_X,current_Y,max_speed,maxJ
 
 	#Yvel logic
 	if target_Y > current_Y:
-		ReturnableYvel = max_speed
+		ReturnableYvel = max_speed/2
 	elif target_Y < current_Y:
-		ReturnableYvel = - max_speed
+		ReturnableYvel = - max_speed/2
 
 	return(ReturnableXvel,ReturnableYvel)

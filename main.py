@@ -97,7 +97,7 @@ playerState = 'Happy'  #Happy or Sad (depressed)
 playerJumpState = 'Falling' #Standing, Jumping
 playerFallingState = 'Falling' #falling , Standing
 playerSadness = 0
-playerSadSpeed = 4
+playerSadSpeed = 6
 playerStuckSad = False
 #hands for player
 playerHandPosition_X = 0
@@ -132,7 +132,7 @@ enemyBulletYposition = []
 enemyBulletXvel = []
 enemyBulletSpeed = 30
 enemyBulletDistance = 500
-enemyAttackDistance = 500
+enemyAttackDistance = 300
 
 
 
@@ -147,6 +147,7 @@ bulletXmax = []
 bulletDistance = 500
 #death variables
 deathCount = 0
+current_boundary = []
 
 #Scene boundries -----------------Lists of Tuples----------(X1,Y1,X2,Y2) (left to right , top to bottom)
 scene_1_boundry = [(0,431,589,700),(802,485,1530,700)]   
@@ -161,7 +162,8 @@ def background(s):
 	screen.blit(s,(backgroundX,0))
 
 def boundry(scene_Boundry):
-	global playerCameraX, playerX, playerJumpState, playerY, playerFallingState, playerYvel, playerXvel
+	global playerCameraX, playerX, playerJumpState, playerY, playerFallingState, playerYvel, playerXvel, current_boundary
+	current_boundary = scene_Boundry
 
 	if playerCameraX <= 0:
 		playerX = 0
@@ -347,7 +349,7 @@ def set():
 	global playerFallingState,playerSadness, backgroundX, playerCameraX
 	global enemies, enemyList, enemyPositionX, enemyPositionY, enemyXvel,enemySprite
 	global enemyXminPositions, enemyXmaxPositions, enemyX, enemyXchange, enemyState
-	global enemyFace, enemyType
+	global enemyFace, enemyType, enemyYvel
 
 	backgroundX = 0
 	playerCameraX = 100
@@ -370,12 +372,14 @@ def set():
 	enemyXminPositions = []
 	enemyXmaxPositions = []
 	enemyX = []
+	enemyYvel = []
 	enemyXchange = []
 	enemyState = []
 	enemySprite = []
 	enemyFace = []
 	enemySprite = []
 	enemyType = []
+	enemyYvel = []
 	deathCount = 0 
 
 def setPlayerPosition(x,y):
@@ -433,6 +437,7 @@ def createEnemy(x,y,paceX,paceX2,typeen = 'None'):
 	enemyX.append(x)
 	enemyPositionY.append(y)
 	enemyXvel.append(enemySpeed)
+	enemyYvel.append(0)
 	enemyXminPositions.append(paceX)
 	enemyXmaxPositions.append(paceX2)
 	enemyXchange.append(0)
@@ -656,22 +661,27 @@ while running:
 	# enemy logic
 	for i in range(enemies):
 		if enemyState[i] is 'Alive':
-			print(enemyX[i],playerCameraX)
+
 			
 			enemyXmin = enemyXminPositions[i]
 			enemyXmax = enemyXmaxPositions[i]
 			
 			enemyX[i] = enemyPositionX[i]+ backgroundX 
-			if (((playerX - (enemyX[i]) )**2) + ((playerY - enemyPositionY[i])**2))**.5 <= enemyAttackDistance:
-				enemyX[i] += enemyXchange[i]
-				enemyXchange[i] += enemyXvel[i]
 
+			if (((playerCameraX - (enemyX[i]+ enemyXchange[i]) +backgroundX )**2) + ((playerY - enemyPositionY[i])**2))**.5 <= enemyAttackDistance:
+				X = EnemyLogic.returnValues(current_boundary,playerCameraX,playerY,enemyPositionX[i] + enemyXchange[i],enemyPositionY[i],4,150,150)
+				
+				enemyXvel[i] = X[0]
+				enemyYvel[i] = X[1]
+			else:
+				if enemyPositionX[i] + enemyXchange[i] > enemyXmax:
+					enemyXvel[i] = -enemySpeed
+				elif enemyPositionX[i] + enemyXchange[i] <enemyXmin:
+					enemyXvel[i] = enemySpeed
 
-
-			if enemyPositionX[i] + enemyXchange[i] > enemyXmax:
-				enemyXvel[i] = -enemySpeed
-			elif enemyPositionX[i] + enemyXchange[i] <enemyXmin:
-				enemyXvel[i] = enemySpeed 
+			enemyX[i] += enemyXchange[i]
+			enemyXchange[i] += enemyXvel[i]
+			enemyPositionY[i] += enemyYvel[i]
 			#face 
 			if enemyXvel[i] > 0:
 				enemyFace[i] = 'Right'
@@ -691,7 +701,7 @@ while running:
 
 		elif enemyState[i] is 'Dead':
 			enemySprite[i] = enemy_black_dead
-			enemyX[i] = enemyPositionX[i] + backgroundX
+			enemyX[i] = enemyPositionX[i] + enemyXchange[i] + backgroundX
 
 
 	if scene == 1:
